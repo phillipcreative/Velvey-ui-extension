@@ -1,93 +1,135 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   reactExtension,
+  BlockStack,
   View,
   Text,
   Button,
-  useExtensionApi,
-  useSubscription,
+  Image,
+  Link,
 } from '@shopify/ui-extensions-react/checkout';
 
-export default reactExtension('purchase.thank-you.block.render', () => <GhostGiver />);
+export default reactExtension('purchase.thank-you.block.render', () => <VenmoBanner />);
 
-function GhostGiver() {
-  const api = useExtensionApi();
+const ACCESS_CODE_KEY = 'ghostgiver_access_code';
+const CHECKOUT_FOR_KEY = 'ghostgiver_checkoutFor';
 
-  // 1) Read available signals
-  const rawLines = useSubscription(api.lines);                 // line items
-  const orderConfirmation = useSubscription(api.orderConfirmation); // order info on thank-you
-  const checkoutAttributes = useSubscription(api.attributes);  // checkout attributes
-
-  // 2) Build a legacy-like payload (replacement for Shopify.checkout)
-  const payload = useMemo(() => {
-    const line_items = (rawLines || []).map((li) => {
-      const props = Object.fromEntries((li.attributes || []).map(a => [a.key, a.value]));
-      return {
-        title: li.title,
-        quantity: li.quantity,
-        variant_id: li.merchandise ? li.merchandise.id : null,
-        properties: props, // holds _For, _Contact, etc.
-      };
-    });
-
-    // Order id/name can differ by version; keep this flexible
-    const order_id =
-      (orderConfirmation && orderConfirmation.order && (orderConfirmation.order.id || orderConfirmation.order.name)) ||
-      (orderConfirmation && orderConfirmation.name) ||
-      null;
-
-    const attributesObj = Object.fromEntries((checkoutAttributes || []).map(a => [a.key, a.value]));
-
-    return {
-      line_items,
-      order_id,
-      attributes: attributesObj,
-      source: 'purchase.thank-you.block.render',
-    };
-  }, [rawLines, orderConfirmation, checkoutAttributes]);
-
-  // 3) Fetch via App Proxy and store access code
-  const [resp, setResp] = useState(null);
-  const [err, setErr] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const run = useCallback(async () => {
-    setLoading(true);
-    setErr(null);
-    setResp(null);
-
-    console.log('POST payload:', payload); // appears in `shopify app dev` CLI
-
-    try {
-      const r = await fetch('/apps/velvey-custom-app/access-codes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const text = await r.text();
-      if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + text.slice(0, 200));
-
-      setResp(text); // access code
-      try { localStorage.setItem('ghostgiver_access_code', text); } catch (e) {}
-    } catch (e) {
-      setErr(String((e && e.message) || e));
-    } finally {
-      setLoading(false);
-    }
-  }, [payload]);
+function VenmoBanner() {
+  const [accessCode, setAccessCode] = useState(null);
+  const [hasCheckoutFor, setHasCheckoutFor] = useState(false);
 
   useEffect(() => {
-    run();
-  }, [run]);
+    try {
+      const code = typeof localStorage !== 'undefined'
+        ? localStorage.getItem(ACCESS_CODE_KEY)
+        : null;
+      setAccessCode(code);
+
+      const checkoutForRaw =
+        typeof localStorage !== 'undefined'
+          ? localStorage.getItem(CHECKOUT_FOR_KEY)
+          : null;
+
+      const checkoutFor = checkoutForRaw ? JSON.parse(checkoutForRaw) : [];
+      setHasCheckoutFor(Array.isArray(checkoutFor) && checkoutFor.length > 0);
+
+      // Fetch access codes from API
+      fetch("https://yourgreetings-server.azurewebsites.net/api/accessCodes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Shopify.checkout),
+      })
+        .then(response => response.text())
+        .then(data => {
+          console.log('DATA:', data);
+          if (!data) {
+            document
+              .getElementById("physical-card-case")
+              .classList.remove("d-none");
+            return;
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching access codes:', error);
+        });
+    } catch {
+      setAccessCode(null);
+      setHasCheckoutFor(false);
+    }
+  }, []);
+
+  const { buttonLabel, href, disabled } = useMemo(() => {
+    if (accessCode) {
+      return {
+        buttonLabel: 'Edit Your Message',
+        href: `https://setup.ghostgiver.com/typeOfMessage/?AccessCode=${encodeURIComponent(accessCode)}`,
+        disabled: false,
+      };
+    }
+    if (hasCheckoutFor) {
+      return {
+        buttonLabel: 'Add Your Anonymous Message',
+        href: 'https://setup.ghostgiver.com/typeOfMessage/',
+        disabled: false,
+      };
+    }
+    return {
+      buttonLabel: 'Message Not Available',
+      href: '',
+      disabled: true,
+    };
+  }, [accessCode, hasCheckoutFor]);
 
   return (
-    <View padding="base" border="base" borderRadius="base" background="subdued">
-      <Text emphasis="bold">Ghost Giver — fetch debug</Text>
-      {loading && <Text size="small">Fetching…</Text>}
-      {resp && <Text size="small">Access code: {resp}</Text>}
-      {err && <Text tone="critical" size="small">Error: {err}</Text>}
-      <Button onPress={run} disabled={loading}>{loading ? 'Running…' : 'Run again'}</Button>
+    <View padding="base" border="base" borderRadius="base" background="subdued" style={{ borderColor: '#af59d7' }}>
+      <BlockStack alignment="center" spacing="tight" inlineAlignment="center">
+        <Image
+          source="https://cdn.shopify.com/s/files/1/0447/4047/7095/files/Message.png?v=1712211206"
+          alt="Confirmation Image"
+          style={{ maxWidth: '100px', marginBottom: '2.5rem' }}
+        />
+
+        <Text alignment="center" weight="bold">
+          The cash amount you designated will be sent to the following Venmo address within the next 24 hours:
+        </Text>
+
+        <View
+          border="dashed"
+          padding="tight"
+          borderRadius="base"
+          style={{
+            marginTop: '2.5rem',
+            marginBottom: '2.5rem',
+            padding: '1rem',
+            width: 'fit-content',
+            borderColor: '#af59d7',
+          }}
+        >
+          <Text size="large" weight="bold">@yourVenmoAddress</Text>
+        </View>
+
+        {href && !disabled ? (
+          <Link to={href} external>
+            <Button role="button" kind="secondary" appearance="success">
+              {buttonLabel}
+            </Button>
+          </Link>
+        ) : (
+          <Button role="button" kind="primary" appearance="success" disabled inlineAlignment="stretch">
+            {buttonLabel}
+          </Button>
+        )}
+
+        <Text alignment="center" weight="bold">
+          For a quick refresher on what to expect next, please refer to our HOW IT WORKS and EXAMPLE pages below
+        </Text>
+
+        <Link to={href} external>
+            <Button role="button" kind="primary" appearance="success">
+              HOW IT WORKS
+            </Button>
+        </Link>
+      </BlockStack>
     </View>
   );
 }
