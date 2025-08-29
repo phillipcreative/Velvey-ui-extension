@@ -1,0 +1,27 @@
+# extensions/order-status-thank-you/shopify.extension.toml
+api_version = "2025-07"
+
+[[extensions]]
+type = "ui_extension"
+name = "order-status-thank-you"
+handle = "order-status-thank-you"
+
+[extensions.capabilities]
+api_access = true
+network_access = true
+
+[extensions.network_access]
+allowed_urls = [
+  "https://yourgreetings-server.azurewebsites.net"
+]
+
+# Targets
+[[extensions.targeting]]
+target = "purchase.thank-you.block.render"
+module = "./src/Checkout.jsx"
+export = "thankYouBlock"
+
+[[extensions.targeting]]
+target = "customer-account.order-status.block.render"
+module = "./src/Checkout.jsx"
+export = "orderDetailsBlock"
