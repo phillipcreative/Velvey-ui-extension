@@ -2,6 +2,7 @@
 api_version = "2025-07"
 
 [[extensions]]
+uid = "6a21e0ac-4169-cd3e-0477-b56ec8f7f8ec1b33dd9b"
 type = "ui_extension"
 name = "order-status-thank-you"
 handle = "order-status-thank-you"
@@ -9,6 +10,7 @@ handle = "order-status-thank-you"
 [extensions.capabilities]
 api_access = true
 network_access = true
+protected_customer_data = true
 
 [extensions.network_access]
 allowed_urls = [
