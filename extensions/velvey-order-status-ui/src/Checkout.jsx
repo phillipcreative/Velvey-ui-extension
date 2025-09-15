@@ -6,9 +6,16 @@ import {
   useSubscription,
 } from '@shopify/ui-extensions-react/checkout';
 
-export default reactExtension(
+// Thank You Page Extension
+export const thankYouBlock = reactExtension(
   'purchase.thank-you.block.render',
   () => <ThankYouExtension />,
+);
+
+// Order Status Page Extension
+export const orderDetailsBlock = reactExtension(
+  'customer-account.order-status.block.render',
+  () => <OrderStatusExtension />,
 );
 
 function ThankYouExtension() {
@@ -60,5 +67,58 @@ function ThankYouExtension() {
 
   return (
     <Text>Order ID: {orderId ?? '...'}</Text>
+  );
+}
+
+function OrderStatusExtension() {
+  const { order } = useApi();
+  const orderData = useSubscription(order);
+  const orderId = orderData?.id; // This is the full GID string
+
+  useEffect(() => {
+    console.log('Order Status Extension loaded');
+    console.log('Order data:', orderData);
+
+    // Make sure we have an orderId before processing it.
+    if (orderId) {
+      // Extract the numeric ID from the full GID string.
+      const numericId = orderId.split('/').pop();
+      console.log('Order Status - numericId', numericId);
+      // Send only the numeric ID to the worker.
+      sendOrderIdToCloudflareWorker(numericId);
+    }
+  }, [orderId, orderData]);
+
+  // This function now expects the numeric ID
+  async function sendOrderIdToCloudflareWorker(numericOrderId) {
+    const workerUrl = 'https://velvey-shopify-proxy.dawn-boat-0e1b.workers.dev';
+
+    try {
+      const response = await fetch(workerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: numericOrderId, // Sending the correct numeric ID
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Worker error:', errorData);
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Successfully sent order ID. Worker response:', data);
+
+    } catch (error) {
+      console.error('Error sending data to worker:', error);
+    }
+  }
+
+  return (
+    <Text>Order ID: {orderId ?? 'Loading...'}</Text>
   );
 }
