@@ -47,8 +47,9 @@ async function getFormattedOrderPayloadFromWorker(numericOrderId) {
   return data;
 }
 
+// ------------- SEND PAYLOAD TO AZURE -------------
 async function sendPayloadToAzure(payload) {
-  const backendUrl = 'https://yourgreetings-server.azurewebsites.net/api/accessCodes';
+  const backendUrl = 'https://velveys-dev.azurewebsites.net/';
 
   console.log('PAYLOAD RIGHT HERE:', payload);
 
@@ -175,7 +176,7 @@ function OrderStatusExtension() {
             {/* ---- Top Section: Heading, Image, Button ---- */}
             <BlockStack spacing="base" inlineAlignment="center">
               <Heading level={3} textAlignment="center">
-                NOW IT’S TIME TO INCLUDE AN ANONYMOUS MESSAGE. JUST PRESS THE BUTTON BELOW TO GET STARTED
+                NOW IT'S TIME TO INCLUDE AN ANONYMOUS MESSAGE. JUST PRESS THE BUTTON BELOW TO GET STARTED
               </Heading>
 
               <Image
@@ -193,7 +194,7 @@ function OrderStatusExtension() {
 
             {/* ---- Bottom Section: Informational Text ---- */}
             <TextBlock appearance="info" textAlignment="center">
-              Can’t commit to your message quite yet? The order confirmation email that was just sent to you also
+              Can't commit to your message quite yet? The order confirmation email that was just sent to you also
               includes a message creation link. Just be sure to complete your anonymous message BEFORE your recipient
               gets their GHOST GIVE. Otherwise, they'll get a boring auto-generated message from us. Booooo!
             </TextBlock>
