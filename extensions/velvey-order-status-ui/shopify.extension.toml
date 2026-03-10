@@ -27,3 +27,15 @@ export = "thankYouBlock"
 target = "customer-account.order-status.block.render"
 module = "./src/Checkout.jsx"
 export = "orderDetailsBlock"
+
+[[extensions.metafields]]
+namespace = "custom"
+key = "order_payload"
+
+[[extensions.metafields]]
+namespace = "custom"
+key = "access_code"
+
+[[extensions.metafields]]
+namespace = "custom"
+key = "setup_url"
