@@ -14,7 +14,8 @@ protected_customer_data = true
 
 [extensions.network_access]
 allowed_urls = [
-  "https://yourgreetings-server.azurewebsites.net"
+  "https://yourgreetings-server.azurewebsites.net",
+  "https://yourgreetings-server-dev.azurewebsites.net"
 ]
 
 # Targets
