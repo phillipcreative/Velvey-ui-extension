@@ -175,7 +175,7 @@ function ThankYouExtension() {
                   accessCode,
                 )}`}
               >
-                ADD YOUR ANONYMOUS MESSAGE&nbsp;
+                ADD YOUR MESSAGE&nbsp;
                 <Icon source="arrowRight" />
               </Button>
             </BlockStack>
@@ -184,8 +184,8 @@ function ThankYouExtension() {
               Can&apos;t commit to your message quite yet? The order confirmation
               email that was just sent to you also includes a message creation
               link. Just be sure to complete your anonymous message BEFORE your
-              recipient gets their GHOST GIVE. Otherwise, they&apos;ll get a
-              boring auto-generated message from us. Booooo!
+              recipient gets their VELVEY. Otherwise, they&apos;ll get a
+              boring auto-generated message from us.
             </TextBlock>
           </>
         ) : (
@@ -265,7 +265,7 @@ function OrderStatusExtension() {
                   accessCode,
                 )}`}
               >
-                ADD YOUR ANONYMOUS MESSAGE&nbsp;
+                ADD YOUR MESSAGE&nbsp;
                 <Icon source="arrowRight" />
               </Button>
             </BlockStack>
@@ -274,8 +274,8 @@ function OrderStatusExtension() {
               Can&apos;t commit to your message quite yet? The order confirmation
               email that was just sent to you also includes a message creation
               link. Just be sure to complete your anonymous message BEFORE your
-              recipient gets their GHOST GIVE. Otherwise, they&apos;ll get a
-              boring auto-generated message from us. Booooo!
+              recipient gets their VELVEY. Otherwise, they&apos;ll get a
+              boring auto-generated message from us.
             </TextBlock>
           </>
         ) : (
