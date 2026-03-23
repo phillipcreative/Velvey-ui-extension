@@ -9,6 +9,7 @@ import {
   Icon,
   useSubscription,
   BlockStack,
+  InlineStack,
   View,
   Button,
   Image,
@@ -119,7 +120,77 @@ function parseAccessCodeResponse(parsed) {
 /** Use `fetchOrder` for a minimal ping; `fetchAndProcess` for full payload. */
 const SHOPIFY_API_ENDPOINT = 'fetchAndProcess';
 
+const LOADING_GIF_URL =
+  'https://cdn.shopify.com/s/files/1/0447/4047/7095/files/800.gif?v=1774277017';
+
 // -------------------- UI --------------------
+
+/** GIF + “Hold tight!” row shown only while the access-code request is in flight. */
+function LoadingIndicatorRow() {
+  return (
+    <InlineStack spacing="base" blockAlignment="center" inlineAlignment="start">
+      <Text emphasis="bold" accessibilityRole="strong">
+        HOLD TIGHT! GRABBING YOUR CONFIRMATION CODE
+      </Text>
+      <View
+        maxInlineSize={30}
+        maxBlockSize={30}
+        overflow="hidden"
+        blockAlignment="center"
+        inlineAlignment="center"
+      >
+        <Image
+          source={LOADING_GIF_URL}
+          alt=""
+          accessibilityDescription=""
+          accessibilityRole="decorative"
+          fit="contain"
+        />
+      </View>
+    </InlineStack>
+  );
+}
+
+/**
+ * Success CTA block (heading, image, button, disclaimer).
+ * @param {{ accessCode: string }} props
+ */
+function AccessCodeSuccessBlock({ accessCode }) {
+  return (
+    <>
+      <BlockStack spacing="base" inlineAlignment="center">
+        <Heading level={3} textAlignment="center">
+          NOW IT&apos;S TIME TO INCLUDE AN ANONYMOUS MESSAGE. JUST PRESS THE
+          BUTTON BELOW TO GET STARTED
+        </Heading>
+
+        <Image
+          source="https://cdn.shopify.com/s/files/1/0447/4047/7095/files/Message_841279b9-569d-4d2f-89a9-766d84deb4fe.webp?v=1758400013"
+          alt="Order Status UI Image"
+          maxInlineSize="88px"
+        />
+
+        <Button
+          kind="primary"
+          to={`https://setup.velvey.com/typeOfMessage/?AccessCode=${encodeURIComponent(
+            accessCode,
+          )}`}
+        >
+          ADD YOUR MESSAGE&nbsp;
+          <Icon source="arrowRight" />
+        </Button>
+      </BlockStack>
+
+      <TextBlock appearance="info" textAlignment="center">
+        Can&apos;t commit to your message quite yet? The order confirmation
+        email that was just sent to you also includes a message creation link.
+        Just be sure to complete your anonymous message BEFORE your recipient
+        gets their VELVEY. Otherwise, they&apos;ll get a boring auto-generated
+        message from us.
+      </TextBlock>
+    </>
+  );
+}
 
 /**
  * Thank-you / order-status card: loading copy, success CTA, or error.
@@ -131,45 +202,10 @@ function ConfirmationCodeCard({ accessCode, errorMessage }) {
   }
 
   if (accessCode) {
-    return (
-      <>
-        <BlockStack spacing="base" inlineAlignment="center">
-          <Heading level={3} textAlignment="center">
-            NOW IT&apos;S TIME TO INCLUDE AN ANONYMOUS MESSAGE. JUST PRESS THE
-            BUTTON BELOW TO GET STARTED
-          </Heading>
-
-          <Image
-            source="https://cdn.shopify.com/s/files/1/0447/4047/7095/files/Message_841279b9-569d-4d2f-89a9-766d84deb4fe.webp?v=1758400013"
-            alt="Order Status UI Image"
-            maxInlineSize="88px"
-          />
-
-          <Button
-            kind="primary"
-            to={`https://setup.velvey.com/typeOfMessage/?AccessCode=${encodeURIComponent(
-              accessCode,
-            )}`}
-          >
-            ADD YOUR MESSAGE&nbsp;
-            <Icon source="arrowRight" />
-          </Button>
-        </BlockStack>
-
-        <TextBlock appearance="info" textAlignment="center">
-          Can&apos;t commit to your message quite yet? The order confirmation
-          email that was just sent to you also includes a message creation link.
-          Just be sure to complete your anonymous message BEFORE your recipient
-          gets their VELVEY. Otherwise, they&apos;ll get a boring auto-generated
-          message from us.
-        </TextBlock>
-      </>
-    );
+    return <AccessCodeSuccessBlock accessCode={accessCode} />;
   }
 
-  return (
-    <Text appearance="subdued">Grabbing your confirmation code!</Text>
-  );
+  return <LoadingIndicatorRow />;
 }
 
 function OrderMessageShell({ accessCode, errorMessage }) {
