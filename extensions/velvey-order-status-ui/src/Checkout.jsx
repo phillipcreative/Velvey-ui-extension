@@ -76,7 +76,7 @@ async function postShopifyBackend(endpointName, numericOrderId, shopDomain) {
 }
 
 /**
- * Reads access code from API envelope { success, data: { accessCode }, message, errors }.
+ * Reads access code from API envelope { success | succeeded, data: { accessCode }, message, errors }.
  * @returns {{ accessCode: string } | { errorMessage: string }}
  */
 function parseAccessCodeResponse(parsed) {
@@ -84,7 +84,9 @@ function parseAccessCodeResponse(parsed) {
     return { errorMessage: 'Unexpected response from server.' };
   }
 
-  const success = parsed.success === true;
+  const success =
+    parsed.success === true ||
+    parsed.succeeded === true;
   const rawCode = parsed.data?.accessCode;
   const code =
     rawCode !== undefined && rawCode !== null ? String(rawCode).trim() : '';
