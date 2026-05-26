@@ -162,8 +162,7 @@ function AccessCodeSuccessBlock({ accessCode }) {
     <>
       <BlockStack spacing="base" inlineAlignment="center">
         <Heading level={3} textAlignment="center">
-          NOW IT&apos;S TIME TO INCLUDE AN ANONYMOUS MESSAGE. JUST PRESS THE
-          BUTTON BELOW TO GET STARTED
+          NOW IT&apos;S TIME TO INCLUDE YOUR MESSAGE. JUST PRESS THE BUTTON BELOW TO GET STARTED
         </Heading>
 
         <Image
@@ -186,8 +185,7 @@ function AccessCodeSuccessBlock({ accessCode }) {
       <TextBlock appearance="info" textAlignment="center">
         Can&apos;t commit to your message quite yet? The order confirmation
         email that was just sent to you also includes a message creation link.
-        Just be sure to complete your anonymous message BEFORE your recipient
-        gets their VELVEY. Otherwise, they&apos;ll get a boring auto-generated
+        Just be sure to complete your message BEFORE your recipient gets their Velvey. Otherwise, they&apos;ll get a boring auto-generated
         message from us.
       </TextBlock>
     </>
